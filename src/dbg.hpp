@@ -1,6 +1,6 @@
 
-#ifndef __MY_BOOST_LOG_DEBUG__H__
-#define __MY_BOOST_LOG_DEBUG__H__
+#ifndef __BOOST_LOG_DEBUG_WRAPPER__H__
+#define __BOOST_LOG_DEBUG_WRAPPER__H__
 
 #include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/sources/logger.hpp>
@@ -41,4 +41,4 @@ BOOST_LOG_GLOBAL_LOGGER(logSyslog, boost::log::sources::logger_mt);
 void logInit();
 
 
-#endif /* __MY_BOOST_LOG_DEBUG__H__ */
+#endif /* __BOOST_LOG_DEBUG_WRAPPER__H__ */
