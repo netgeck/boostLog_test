@@ -14,7 +14,7 @@
 #include <boost/log/expressions/keyword.hpp>
 #include <boost/log/support/date_time.hpp>
 
-#include "dbg.hpp"
+#include "blog.h"
 
 
 namespace logging = boost::log;
@@ -25,8 +25,8 @@ namespace attrs = boost::log::attributes;
 namespace keywords = boost::log::keywords;
 
 
-BOOST_LOG_GLOBAL_LOGGER_INIT(logSyslog, boost::log::sources::severity_logger<boost::log::trivial::severity_level>) {
-	boost::log::sources::severity_logger<boost::log::trivial::severity_level> logger;
+BOOST_LOG_GLOBAL_LOGGER_INIT(logSyslog, boost::log::sources::severity_logger<blog::lvl>) {
+	boost::log::sources::severity_logger<blog::lvl> logger;
 	logger.add_attribute("Tag", attrs::constant< std::string >("syslog"));
 	return logger;
 }
@@ -36,7 +36,7 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", logging::trivial::severity_lev
 BOOST_LOG_ATTRIBUTE_KEYWORD(tag_attr, "Tag", std::string)
 
 
-void logInit() {
+void blog::logInit(blog::lvl syslogLvlThreshold /*= blog::lvl::warning*/) {
 	// Создаём sink для вывода в консоль
 	typedef sinks::synchronous_sink<sinks::text_ostream_backend> text_sink;
 	boost::shared_ptr<text_sink> sinkConsole = boost::make_shared<text_sink>();
@@ -49,7 +49,7 @@ void logInit() {
 		expr::format("[%1%] (%2%): %3%")
 			//Дефолтный: expr::attr<boost::posix_time::ptime>("TimeStamp")
 			% expr::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S.%f")
-			% expr::attr<boost::log::trivial::severity_level>("Severity")
+			% expr::attr<blog::lvl>("Severity")
 			% expr::smessage
 		);
 	
@@ -60,7 +60,7 @@ void logInit() {
 			keywords::use_impl = sinks::syslog::native
 		);
 	// В syslog пойдут только логи с соответствующей меткой
-	sinkSyslog->set_filter(severity >= boost::log::trivial::severity_level::warning && expr::has_attr(tag_attr) && tag_attr == "syslog");
+	sinkSyslog->set_filter(severity >= syslogLvlThreshold && expr::has_attr(tag_attr) && tag_attr == "syslog");
 	
 	// Регистрируем наши sink'и в core
 	logging::core::get()->add_sink(sinkConsole);
