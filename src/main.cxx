@@ -15,8 +15,15 @@ int main(int, char*[]) {
 	logInit();
 	
 	BLOG << "Log to syslog and console!";
-	BLOG << "sleep: " << sleep(5);
-	BLOG_SYSLOG << "Log to console!";
+//	BLOG << "sleep: " << sleep(5);
+	BLOG_SYSLOG << "Log to syslog only!";
+	
+	BLOG_SYSLOG_SEV(boost::log::trivial::severity_level::trace)	<< "trace message";
+	BLOG_SYSLOG_SEV(boost::log::trivial::severity_level::debug)	<< "debug message";
+	BLOG_SYSLOG_SEV(boost::log::trivial::severity_level::info)	<< "info message";
+	BLOG_SYSLOG_SEV(boost::log::trivial::severity_level::warning)	<< "warning message";
+	BLOG_SYSLOG_SEV(boost::log::trivial::severity_level::error)	<< "error message";
+	BLOG_SYSLOG_SEV(boost::log::trivial::severity_level::fatal)	<< "fatal message";
 	
 	return 0;
 }
