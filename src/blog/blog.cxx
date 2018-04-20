@@ -39,19 +39,22 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(tag_attr, "Tag", std::string)
 void blog::logInit(blog::lvl syslogLvlThreshold /*= blog::lvl::warning*/) {
 	// Создаём sink для вывода в консоль
 	typedef sinks::synchronous_sink<sinks::text_ostream_backend> text_sink;
-	boost::shared_ptr<text_sink> sinkConsole = boost::make_shared<text_sink>();
-	// We have to provide an empty deleter to avoid destroying the global stream object
-	boost::shared_ptr<std::ostream> stream(&std::clog, boost::null_deleter());
-	// Add a stream to write log to
-	sinkConsole->locked_backend()->add_stream(stream);
-	// Задаём формат вывода
-        sinkConsole->set_formatter(
-		expr::format("[%1%] (%2%): %3%")
-			//Дефолтный: expr::attr<boost::posix_time::ptime>("TimeStamp")
-			% expr::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S.%f")
-			% expr::attr<blog::lvl>("Severity")
-			% expr::smessage
-		);
+	boost::shared_ptr<text_sink> sinkConsole;
+	if(!BLOG_TO_CONSOLE_DISABLED) {
+		sinkConsole = boost::make_shared<text_sink>();
+		// We have to provide an empty deleter to avoid destroying the global stream object
+		boost::shared_ptr<std::ostream> stream(&std::clog, boost::null_deleter());
+		// Add a stream to write log to
+		sinkConsole->locked_backend()->add_stream(stream);
+		// Задаём формат вывода
+		sinkConsole->set_formatter(
+			expr::format("[%1%] (%2%): %3%")
+				//Дефолтный: expr::attr<boost::posix_time::ptime>("TimeStamp")
+				% expr::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S.%f")
+				% expr::attr<blog::lvl>("Severity")
+				% expr::smessage
+			);
+	}
 	
 	// Создаём sink для вывода в syslog
 	typedef sinks::synchronous_sink<sinks::syslog_backend> syslog_sink;
@@ -63,8 +66,10 @@ void blog::logInit(blog::lvl syslogLvlThreshold /*= blog::lvl::warning*/) {
 	sinkSyslog->set_filter(severity >= syslogLvlThreshold && expr::has_attr(tag_attr) && tag_attr == "syslog");
 	
 	// Регистрируем наши sink'и в core
-	logging::core::get()->add_sink(sinkConsole);
 	logging::core::get()->add_sink(sinkSyslog);
+	if(!BLOG_TO_CONSOLE_DISABLED) {
+		logging::core::get()->add_sink(sinkConsole);
+	}
 	
 	// Глобальные атрибуты
 	logging::core::get()->add_global_attribute("TimeStamp", attrs::local_clock());

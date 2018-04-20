@@ -1,4 +1,10 @@
 
+if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+	# Задаём директивы используемые в публичных хедерах библиотеки
+	set(DEFINITIONS_USING_IN_PUBLIC_HEADERS -DBLOG_BUILD_SYSLOG_ONLY)
+endif()
+
+
 set(target_name blog)
 
 add_library(${target_name} blog.cxx)
@@ -12,6 +18,7 @@ PUBLIC
 # Про BOOST_LOG_DYN_LINK: https://www.boost.org/doc/libs/1_65_0/libs/log/doc/html/log/rationale/namespace_mangling.html
 	-DBOOST_LOG_DYN_LINK
 	-DBOOST_LOG_USE_NATIVE_SYSLOG
+	${DEFINITIONS_USING_IN_PUBLIC_HEADERS}
 )
 
 #список библиотек для линковки

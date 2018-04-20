@@ -23,16 +23,16 @@ void logInit(blog::lvl syslogLvlThreshold = blog::lvl::warning);
 
 
 // логер по умолчанию
-BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(logDefault, boost::log::sources::severity_logger<blog::lvl>)
+BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(logConsole, boost::log::sources::severity_logger<blog::lvl>)
 // логер дублирующий вывод в syslog
 BOOST_LOG_GLOBAL_LOGGER(logSyslog, boost::log::sources::severity_logger<blog::lvl>);
 
 
 /// Отключаем вывод логов в зависимости от типа сборки
-#ifndef NDEBUG
-#define IS_BLOG_DISABLED	false
+#ifdef BLOG_BUILD_SYSLOG_ONLY
+#define BLOG_TO_CONSOLE_DISABLED true
 #else
-#define IS_BLOG_DISABLED	true
+#define BLOG_TO_CONSOLE_DISABLED false
 #endif
 
 
@@ -50,23 +50,19 @@ BOOST_LOG_GLOBAL_LOGGER(logSyslog, boost::log::sources::severity_logger<blog::lv
 
 // Вывод дебажного сообщения
 #define BLOG \
-	if (IS_BLOG_DISABLED) {} \
-	else BOOST_LOG(logDefault::get())
+	if (BLOG_TO_CONSOLE_DISABLED) {} \
+	else BOOST_LOG(logConsole::get())
 
 // Вывод дебажного сообщения продублированный в syslog
-#define BLOG_SYSLOG \
-	if (IS_BLOG_DISABLED) {} \
-	else BOOST_LOG(logSyslog::get())
+#define BLOG_SYSLOG		BOOST_LOG(logSyslog::get())
 
 // Вывод дебажного сообщения (с уровнем лога)
 #define BLOG_SEV(lvl) \
-	if (IS_BLOG_DISABLED) {} \
-	else BOOST_LOG_SEV(logDefault::get(), lvl)
+	if (BLOG_TO_CONSOLE_DISABLED) {} \
+	else BOOST_LOG_SEV(logConsole::get(), lvl)
 
 // Вывод дебажного сообщения (с уровнем лога) продублированный в syslog
-#define BLOG_SYSLOG_SEV(lvl) \
-	if (IS_BLOG_DISABLED) {} \
-	else BOOST_LOG_SEV(logSyslog::get(), lvl)
+#define BLOG_SYSLOG_SEV(lvl)	BOOST_LOG_SEV(logSyslog::get(), lvl)
 
 
 #endif /* __BOOST_LOG_DEBUG_WRAPPER__H__ */
