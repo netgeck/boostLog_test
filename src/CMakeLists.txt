@@ -1,13 +1,13 @@
 
 add_subdirectory(blog)
 
+
 set(target_name testLog)
 
 add_executable(${target_name} main.cxx)
 
-#список библиотек для линковки
 target_link_libraries(${target_name}
 	blog
 )
 
-install(TARGETS ${target_name} RUNTIME DESTINATION CMAKE_BINARY_DIR)
+install(TARGETS ${target_name} RUNTIME DESTINATION ${CMAKE_BINARY_DIR}) # в корень сборочной директории
