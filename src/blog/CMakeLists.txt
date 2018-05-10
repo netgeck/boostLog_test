@@ -1,7 +1,7 @@
 
 if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 	# Задаём директивы используемые в публичных хедерах библиотеки
-	set(DEFINITIONS_USING_IN_PUBLIC_HEADERS -DBLOG_BUILD_SYSLOG_ONLY)
+	set(DEFINITIONS_USING_IN_PUBLIC_HEADERS -DBLOG_BUILD_SYSLOG_ONLY) # В Релизе только вывод в syslog
 endif()
 
 
