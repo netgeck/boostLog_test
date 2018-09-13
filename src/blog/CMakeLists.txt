@@ -17,7 +17,7 @@ target_compile_definitions(${target_name}
 PUBLIC
 # Про BOOST_LOG_DYN_LINK: https://www.boost.org/doc/libs/1_65_0/libs/log/doc/html/log/rationale/namespace_mangling.html
 	-DBOOST_LOG_DYN_LINK
-	-DBOOST_LOG_USE_NATIVE_SYSLOG
+	-DBOOST_LOG_USE_NATIVE_SYSLOG	# Использовать системный syslog (boost тащит свою реализацию для всяких Windows)
 	${DEFINITIONS_USING_IN_PUBLIC_HEADERS}
 )
 

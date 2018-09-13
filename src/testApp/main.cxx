@@ -7,29 +7,40 @@
 
 
 #include <blog.h>
+#include <blogFmt.h>
 
 
-/*
- * 
+/**
+ * @brief Примеры использования библиотеки логирования
  */
 int main(int /*argc*/, char** /*argv*/) {
-	blog::logInit();
+	blog::logInit(blog::lvl::trace);
 	
 	// используется уровень логирования по умолчанию (trace):
-	BLOG_				<< "Простой вывод сообщения.";
-	BLOG_SYSLOG_			<< "Вывод сообщения в syslog и консоль";
+	BLOG_			<< "Простой вывод сообщения.";
+	BLOG_SYSLOG_		<< "Вывод сообщения в syslog и консоль (trace)";
 	
 	// вывод с заданным уровнем логирования:
-	BLOG(blog::lvl::warning)	<< "Простой вывод сообщения.";
-	BLOG_SYSLOG(blog::lvl::error)	<< "Вывод сообщения в syslog и консоль";
+	BLOG(warning)		<< "Простой вывод сообщения.";
+	BLOG_SYSLOG(error)	<< "Вывод сообщения в syslog и консоль (error)";
 	
 	// вывод сообщения с указанием логического канала
-	BLOG_CHAN("main", blog::lvl::info) << "Начинаем вычисление";
-	auto calc([](){
-		BLOG_CHAN("calculation", blog::lvl::error) << "Ошибка вычисления";
+	// записи будут разделены по разным каналам: "main" и "calculation";
+	BLOG_CHAN("main", info) << "Начинаем вычисление";
+	auto calc([]()->int {
+		int error = -1;
+		BLOG_CHAN("calculation", error) << "Ошибка вычисления";
+		return error; // <--     ^^^^^  Это разные сущности: локальная переменная и blog::lvl::error
 	});
 	calc();
-
+	
+	// Версии тех же макросов со строковым форматированием в стиле boost::format:
+	BLOG_FMT_("Строковое форматирование. %1%")	         % "Простой вывод сообщения.";
+	BLOG_SYSLOG_FMT_("Строковое форматирование. %1%")        % "С выводом в syslog";
+	BLOG_FMT(warning, "Строковое форматирование. %1% - %2%") % "C заданным уровнем логирования" % "warning";
+	BLOG_SYSLOG_FMT(error, "Строковое форматирование. %1%")  % "С выводом в syslog и заданным уровнем логирования";
+	BLOG_CHAN_FMT("main", info, "Строковое форматирование. %1%") % "С указанием канала и уровнем логирования";
+	
 	return 0;
 }
 
